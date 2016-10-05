@@ -23,68 +23,40 @@ class Searcher implements ISearcher {
     @Override
     public synchronized String[] guess(String start) {
         Timer.start("Search");
-
-        ArrayList<String> list = new ArrayList<>(); //auxiliary list for transferring data from map to array
-
-        String[] result; //resulting list of class names
+        SortedMap<String, Long> map;
         //If search string is not empty:
-        if(start.length() > 0) {
+        if (start.isEmpty()){
+            map = classes;
+        } else {
             //Searching string in map
             char nextLetter = (char) (start.charAt(start.length() - 1) + 1);
             String end = start.substring(0, start.length()-1) + nextLetter;
             //Result map
-            SortedMap<String, Long> map = classes.subMap(start, end);
-            //Sort all results by last mod.date
-            Map <String, Long> sortedSet = sortByValue(map);
-            list.addAll(sortedSet.keySet());
-            //Printing results (no more than 12)
-            if (map.size() < 12) {
-                result = new String[map.size()];
-                for (int i = 0; i < map.size(); i++) {
-                    result[i] = list.get(i);
-                }
-            } else {
-                result = new String[12];
-                for (int i = 0; i < 12; i++) {
-                    result[i] = list.get(i);
-                }
-            }
-            Timer.finish();
-            return result;
+            map = classes.subMap(start, end);
         }
-        //If search string is empty - 12 last modified classes printed.
-        list.addAll(sortByValue(classes).keySet());
-        result = new String[12];
-        for (int i = 0; i<12; i++){
-            result[i] = list.get(i);
-        }
-        Timer.finish();
-        return result;
-    }
-
-    /*
-    Auxiliary method, creating linked hash map to sort by value instead of key.
-    */
-    private static Map<String, Long> sortByValue(Map<String, Long> map) {
-        LinkedHashMap<String, Long> result = new LinkedHashMap<>();
-        //Create a set of records <String, Long>, to implement custom comparator.
-        SortedSet<Map.Entry<String, Long>> sortedEntries = new TreeSet<>(
+        List<Map.Entry<String, Long>> newestClasses = new ArrayList<>(map.entrySet());
+        Collections.sort(newestClasses,
                 new Comparator<Map.Entry<String, Long>>() {
                     @Override
                     public int compare(Map.Entry<String, Long> e1, Map.Entry<String, Long> e2) {
-                        //Sort by value
-                        int res = e1.getValue().compareTo(e2.getValue());
-                        //If values are equal - sort by key
+                        // Sort by modification date
+                        int res = e2.getValue().compareTo(e1.getValue());
+                        // If values are equal - sort by name
                         return res != 0 ? res : e1.getKey().compareTo(e2.getKey());
                     }
                 }
         );
-        sortedEntries.addAll(map.entrySet());
 
-        for (Map.Entry<String, Long> e : sortedEntries){
-            result.put(e.getKey(), e.getValue());
+        // Returning results (no more than 12)
+        String[] results = new String[Math.min(newestClasses.size(), 12)];
+
+        for (int i = 0; i < results.length; i++) {
+            results[i] = newestClasses.get(i).getKey() + " - "+ new Date(newestClasses.get(i).getValue());
         }
+        Timer.finish();
 
-        return result;
+        return results;
     }
+
+
 }

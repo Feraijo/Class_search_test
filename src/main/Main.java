@@ -21,7 +21,7 @@ public class Main {
         Timer.start("Creating arrays");
         for (int i = 0; i<100000; i++) {
             names[i] = String.format("%c%c%c%c%c-%d", rChar(),rChar(),rChar(),rChar(),rChar(),i+1);
-            long l = r.nextLong()/1000000000000L;
+            long l = r.nextLong()/10000000000L;
             dates[i] = l > 0 ? l : l* (-1);
         }
         Timer.finish();
@@ -40,9 +40,9 @@ public class Main {
                     break;
 
                 //Search in string
-                String[] result = s.guess(query);
+                String[] results = s.guess(query);
                 //Printing results
-                for (String q : result) {
+                for (String q : results) {
                     System.out.println(q);
                 }
                 System.out.println();
