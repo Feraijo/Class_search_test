@@ -1,5 +1,4 @@
 # Class_search_test
-Test task from one employer i'd like to work with
 
 Description of the problem
 Imagine that you - the developer from the ancient times, when IDE were only start to exist. 
